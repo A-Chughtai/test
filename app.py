@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 # Functions that we’ll also expose as routes
 def add(a, b):
-    return a + b
+    return a - b
 
 def subtract(a, b):
     return a - b
