@@ -1,22 +1,25 @@
-name: CI Test and Push
+name: Test and Auto-Merge
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch: 
+
+# Permissions needed to comment on and merge Pull Requests
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  test-and-deploy:
+  test-and-merge:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Check out the repository code
+    # Step 1: Check out the code
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Step 2: Set up Python environment
+    # Step 2: Set up Python
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -29,13 +32,16 @@ jobs:
         pip install pytest
 
     # Step 4: Run the test suite
-    # If this step fails, the workflow stops immediately, preventing the next step.
+    # If this fails, the workflow stops here, and the PR will block the merge.
     - name: Run tests with pytest
       run: |
         pytest test_app.py
 
-    # Step 5: Example deploy/push step
-    # This only runs if the tests step above passes successfully.
-    - name: Simulate Production Push
+    # Step 5: Merge the branch into main if tests pass
+    # This uses the built-in GitHub CLI (gh) which is pre-installed on GitHub runners.
+    - name: Auto-merge Pull Request
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "All tests passed! Proceeding with code deployment/push logic..."
+        echo "Tests passed! Merging pull request..."
+        gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch
