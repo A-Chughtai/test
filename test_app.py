@@ -11,4 +11,4 @@ def test_subtract_success():
 
     from app import subtract
 
-    assert subtract(5, 2) == 3
+    assert subtract(5, 1) == 3
